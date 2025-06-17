@@ -1,15 +1,15 @@
-// ai-agent-server.js
 require("dotenv").config();
 const express = require("express");
 const { OpenAIEmbeddings } = require("@langchain/openai");
 const { ChatOpenAI } = require("@langchain/openai");
 const { Pinecone } = require("@pinecone-database/pinecone");
 const sql = require('mssql');
+const { SystemMessage, HumanMessage } = require("@langchain/core/messages");
 
 const app = express();
 app.use(express.json());
 
-// Initialize OpenAI with specific model
+
 const embeddings = new OpenAIEmbeddings({
   openAIApiKey: process.env.OPENAI_API_KEY,
   modelName: "text-embedding-3-small", // 1024 dimensions
@@ -254,22 +254,15 @@ app.post("/ask", async (req, res) => {
       searchVectorDB(userQuery)
     ]);
 
-    const messages = [
-      {
-        role: "system",
-        content: `You are a company data assistant. You have access to:
+    const response = await chatModel.invoke([
+      new SystemMessage(`You are a company data assistant. You have access to:
         1. User information including details, wallet balance, KYC status, and contact information
         2. A knowledge base of company documents and FAQs
-        Provide concise and relevant answers based on all available data.`,
-      },
-      {
-        role: "user",
-        content: `Database Results: ${dbResult}\nKnowledge Base Results: ${vectorResult}\n\nAnswer this query: ${userQuery}`,
-      },
-    ];
+        Provide concise and relevant answers based on all available data.`),
+      new HumanMessage(`Database Results: ${dbResult}\nKnowledge Base Results: ${vectorResult}\n\nAnswer this query: ${userQuery}`)
+    ]);
 
-    const response = await chatModel.call(messages);
-    res.json({ response: response.text });
+    res.json({ response: response.content });
   } catch (err) {
     console.error('Error processing request:', err);
     res.status(500).json({ error: "Failed to process the query" });
