@@ -1,119 +1,161 @@
-# AI-Powered Data Assistant with Vector Database
+# AI Agent with Vector DB and SQL Integration
 
-This project implements an AI-powered data assistant that combines traditional database queries with vector-based document search capabilities. It uses OpenAI for embeddings and chat completions, Pinecone for vector storage, and MS SQL Server for structured data.
+This project implements an intelligent data retrieval system that combines Vector Database (Pinecone) capabilities with traditional SQL database operations, enhanced by OpenAI's language models.
 
-## Prerequisites
+## System Architecture
 
-- Node.js (v14 or higher)
-- MS SQL Server instance
-- Pinecone account
-- OpenAI API key
+```mermaid
+flowchart TD
+    A[Client Application] --> B[Express Server]
 
-## Environment Setup
+    subgraph "Main API Endpoints"
+        B --> C[/ask endpoint]
+        B --> D[/add-document endpoint]
+    end
 
-Create a `.env` file in the root directory with the following variables:
+    subgraph "Document Addition Flow"
+        D --> E[Create Embeddings]
+        E --> F[Store in Pinecone]
+    end
 
-```env
-# OpenAI Configuration
-OPENAI_API_KEY=your_openai_api_key
+    subgraph "Query Processing Flow"
+        C --> G[Process User Query]
+        G --> H{Parallel Processing}
+        
+        H --> I[Query SQL Database]
+        H --> J[Search Vector DB]
+        
+        I --> K[Combine Results]
+        J --> K
+        
+        K --> L[Send to ChatOpenAI]
+        L --> M[Generate Response]
+    end
 
-# Pinecone Configuration
-PINECONE_API_KEY=your_pinecone_api_key
-PINECONE_INDEX=your_pinecone_index_name
-
-# Database Configuration
-DB_USER=your_db_user
-DB_PASSWORD=your_db_password
-DB_NAME=your_database_name
-DB_HOST=your_database_host
-
-# Server Configuration
-PORT=3000 # Optional, defaults to 3000
+    M --> N[Return to Client]
 ```
 
-## Installation
+## System Components
 
-1. Clone the repository:
+### 1. API Endpoints
+
+- **/add-document**: Adds new documents to the vector database
+- **/ask**: Processes user queries and returns AI-generated responses
+
+### 2. Database Integration
+
+#### SQL Database Tables
+- User profiles
+- Wallet information
+- KYC details
+- Transaction records
+- Order history
+- Product information
+
+#### Vector Database (Pinecone)
+- Stores document embeddings
+- Enables semantic search
+- Retrieves contextually relevant information
+
+### 3. AI Components
+
+- **OpenAI Embeddings**: text-embedding-3-small model (1024 dimensions)
+- **ChatOpenAI**: Processes combined data and generates natural responses
+
+## Flow Description
+
+1. **Document Addition Process**
+   - Receives text input
+   - Generates embeddings using OpenAI
+   - Stores in Pinecone with metadata
+   - Returns confirmation
+
+2. **Query Processing**
+   - Receives user query
+   - Parallel processing:
+     - Searches SQL database for relevant structured data
+     - Searches Pinecone for relevant documents
+   - Combines results
+   - Processes through ChatOpenAI
+   - Returns formatted response
+
+## Setup Requirements
+
+1. Environment Variables:
+   ```
+   OPENAI_API_KEY=your_openai_key
+   PINECONE_API_KEY=your_pinecone_key
+   PINECONE_INDEX=your_index_name
+   DB_USER=your_db_user
+   DB_PASSWORD=your_db_password
+   DB_NAME=your_db_name
+   DB_HOST=your_db_host
+   PORT=3000
+   ```
+
+2. Dependencies:
+   - @langchain/openai
+   - @pinecone-database/pinecone
+   - express
+   - mssql
+   - dotenv
+
+## Error Handling
+
+- Database connection errors
+- Query processing errors
+- Vector database errors
+- API errors
+- Graceful shutdown handling
+
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up environment variables
+4. Start the server: `npm start`
+
+The server will be available at `http://localhost:3000`
+
+## API Usage
+
+### Adding Documents
 ```bash
-git clone [repository-url]
-cd [repository-name]
-```
+POST /add-document
+Content-Type: application/json
 
-2. Install dependencies:
-```bash
-npm install
-```
-
-## Running the Server
-
-Start the server with:
-```bash
-node app.js
-```
-
-The server will be available at `http://localhost:3000` (or your configured PORT).
-
-## API Endpoints
-
-### 1. Add Document
-- **Endpoint:** POST `/add-document`
-- **Purpose:** Add documents to the vector database (Pinecone)
-- **Request Body:**
-```json
 {
     "text": "Your document text",
-    "metadata": {} // Optional metadata
+    "metadata": {
+        "optional": "metadata"
+    }
 }
 ```
 
-### 2. Ask Question
-- **Endpoint:** POST `/ask`
-- **Purpose:** Query both structured database and vector database
-- **Request Body:**
-```json
+### Querying the System
+```bash
+POST /ask
+Content-Type: application/json
+
 {
     "query": "Your question here"
 }
 ```
 
-## System Architecture
-
-1. **Database Layer**
-   - Uses MS SQL Server for structured data
-   - Stores user information, transactions, orders, and products
-   - Implements connection pooling for efficient database operations
-
-2. **Vector Database Layer**
-   - Uses Pinecone for document storage and similarity search
-   - Stores document embeddings generated using OpenAI
-   - Enables semantic search capabilities
-
-3. **AI Integration**
-   - Uses OpenAI for:
-     - Text embeddings (text-embedding-3-small model)
-     - Chat completions for natural language responses
-   - Combines structured and unstructured data in responses
-
-## Database Schema
-
-The system works with the following tables:
-- tbl_User (user information and KYC details)
-- tbl_Transactions (transaction records)
-- tbl_Orders (order information)
-- tbl_Products (product catalog)
-
-## Error Handling
-
-- Implements graceful shutdown for database connections
-- Includes error handling for database operations
-- Handles vector database initialization failures
-- Provides appropriate error responses for API endpoints
-
 ## Security Considerations
 
-- Uses environment variables for sensitive configuration
-- Implements database connection encryption
-- Validates input data before processing
+- Environment variables for sensitive data
+- SQL injection prevention
+- API key management
+- Secure database connections
+
+## Maintenance
+
+The system includes:
+- Connection pooling
+- Graceful shutdown handlers
+- Error logging
+- Resource cleanup
 
 ## Contributing
 
