@@ -125,9 +125,10 @@ POST /add-document
 Content-Type: application/json
 
 {
-    "text": "Your document text",
+    "text": "Vista Neotech Compliance & Certifications: ISO 27001:2013 certified for Information Security Management, PCI DSS compliant for payment processing, GDPR and PDPA compliant for data protection, SOC 2 Type II certified for security controls, Regular security audits conducted quarterly, RBI registered for payment processing.",
     "metadata": {
-        "optional": "metadata"
+        "category": "compliance",
+        "type": "certifications"
     }
 }
 ```
@@ -142,28 +143,7 @@ Content-Type: application/json
 }
 ```
 
-## Security Considerations
 
-- Environment variables for sensitive data
-- SQL injection prevention
-- API key management
-- Secure database connections
-
-## Maintenance
-
-The system includes:
-- Connection pooling
-- Graceful shutdown handlers
-- Error logging
-- Resource cleanup
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ## License
 
